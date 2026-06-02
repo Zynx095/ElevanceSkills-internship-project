@@ -19,6 +19,7 @@ import { Calendar, Edit, Plus, X } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+
 const getUserData = (id: string) => {
   const users = {
     "1": {
@@ -39,6 +40,7 @@ const getUserData = (id: string) => {
   };
   return users[id as keyof typeof users] || users["1"];
 };
+
 const index = () => {
   const { user } = useAuth();
   const router = useRouter();
@@ -52,6 +54,8 @@ const index = () => {
     tags: users?.tags || [],
   });
   const [newTag, setNewTag] = useState("");
+  const [receiverId, setReceiverId] = useState("");
+  const [transferPoints, setTransferPoints] = useState("");
 
   useEffect(() => {
     const fetchuser = async () => {
@@ -67,6 +71,7 @@ const index = () => {
     };
     fetchuser();
   }, [id]);
+
   if (loading) {
     return (
       <Mainlayout>
@@ -74,6 +79,7 @@ const index = () => {
       </Mainlayout>
     );
   }
+
   if (!users || users.length === 0) {
     return <div className="text-center text-gray-500 mt-4">No user found.</div>;
   }
@@ -116,8 +122,36 @@ const index = () => {
     });
   };
 
+  const handleTransferPoints = async () => {
+    try {
+      console.log("Auth User:", user);
+      console.log("Sender ID:", user?._id);
+      console.log("Receiver ID:", receiverId);
+      console.log("Points:", transferPoints);
+      const res = await axiosInstance.post(
+        "/user/transfer-points",
+        {
+          senderId: user?._id,
+          receiverId,
+          points: Number(transferPoints)
+        }
+      );
+
+      toast.success(res.data.message);
+
+      setReceiverId("");
+      setTransferPoints("");
+
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Transfer failed"
+      );
+    }
+  };
+
   const currentUserId = user?._id;
   const isOwnProfile = id === currentUserId;
+
   return (
     <Mainlayout>
       <div className="max-w-6xl">
@@ -274,6 +308,14 @@ const index = () => {
                 {new Date(users.joinDate).toISOString().split("T")[0]}
               </div>
             </div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="font-semibold text-lg">
+                {users.rewardPoints || 0}
+              </span>
+              <span className="text-gray-600">
+                Reward Points
+              </span>
+            </div>
             <div className="flex flex-wrap items-center space-x-6 text-sm">
               <div className="flex items-center">
                 <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
@@ -293,7 +335,7 @@ const index = () => {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1  gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
@@ -309,6 +351,31 @@ const index = () => {
             </Card>
           </div>
           <div className="space-y-6">
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Transfer Reward Points</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Receiver User ID"
+                    value={receiverId}
+                    onChange={(e) => setReceiverId(e.target.value)}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Points"
+                    value={transferPoints}
+                    onChange={(e) => setTransferPoints(e.target.value)}
+                  />
+                  <Button onClick={handleTransferPoints}>
+                    Transfer Points
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Top Tags</CardTitle>
@@ -340,4 +407,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default index; 

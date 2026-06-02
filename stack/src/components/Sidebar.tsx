@@ -37,7 +37,7 @@ const Sidebar = ({ isopen }: any) => {
             </li>
             <li>
               <Link
-                href="/questions"
+                href="/"
                 className="flex items-center px-2 py-2 text-gray-700 hover:bg-gray-100 rounded text-sm"
               >
                 <MessageSquareIcon className="w-4 h-4 mr-2 lg:mr-3" />

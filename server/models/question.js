@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import User from "../models/auth.js";
 const questionschema = mongoose.Schema(
   {
     questiontitle: { type: String, required: true },
@@ -16,9 +16,27 @@ const questionschema = mongoose.Schema(
         answerbody: String,
         useranswered: String,
         userid: String,
-        answeredon: { type: Date, default: Date.now },
-      },
-    ],
+        upvotes: {
+          type: Number,
+          default: 0
+        },
+
+        downvotes: {
+          type: Number,
+          default: 0
+        },
+
+        bonusAwarded: {
+          type: Boolean,
+          default: false
+        },
+
+        answeredon: {
+          type: Date,
+          default: Date.now
+        }
+      }
+    ]
   },
   { timestamp: true }
 );

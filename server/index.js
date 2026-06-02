@@ -18,15 +18,14 @@ app.use('/question',questionroute)
 app.use('/answer',answerroutes)
 const PORT = process.env.PORT || 5000;
 const databaseurl = process.env.MONGODB_URL;
-console.log("DB URL:", process.env.MONGODB_URL);
 mongoose
   .connect(databaseurl)
   .then(() => {
-    console.log("✅ Connected to MongoDB");
+    console.log(" Connected to MongoDB");
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("❌ MongoDB connection error:", err.message);
+    console.error(" MongoDB connection error:", err.message);
   });
