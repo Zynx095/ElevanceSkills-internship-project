@@ -56,7 +56,7 @@ const index = () => {
                 Log in to your account
               </CardTitle>
               <CardDescription>
-                Enter your email and password to access Stack Overflow
+                Enter your email and password
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -142,7 +142,10 @@ const index = () => {
                 {loading ? "loading" : "Log in"}
               </Button>
               <div className="text-center text-sm">
-                <Link href="#" className="text-blue-600 hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="text-blue-600 hover:underline"
+                >
                   Forgot your password?
                 </Link>
               </div>

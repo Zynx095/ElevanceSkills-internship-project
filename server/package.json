@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.21.0",
     "mongoose": "^8.16.5",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "ua-parser-js": "^2.0.10"
   }
 }

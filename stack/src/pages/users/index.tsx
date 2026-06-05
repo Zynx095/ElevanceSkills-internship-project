@@ -5,35 +5,19 @@ import axiosInstance from "@/lib/axiosinstance";
 import { Calendar, Search } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-const users = [
-  {
-    id: 1,
-    name: "John Doe",
-    username: "johndoe",
-    joinDate: "2019-03-15",
-  },
-  {
-    id: 2,
-    name: "Felix Rodriguez",
-    username: "Felix.leg",
-    joinDate: "2020-07-22",
-  },
-  {
-    id: 3,
-    name: "Alex Smith",
-    username: "Aledi5",
-    joinDate: "2023-11-10",
-  },
-  {
-    id: 4,
-    name: "Sarah Johnson",
-    username: "PR0X",
-    joinDate: "2024-01-05",
-  },
-];
+
+const getHighestBadge = (badges: string[] = []) => {
+  if (badges.includes("Elite Contributor")) return "👑";
+  if (badges.includes("Gold Contributor")) return "🥇";
+  if (badges.includes("Silver Contributor")) return "🥈";
+  if (badges.includes("Bronze Contributor")) return "🥉";
+  return "";
+};
+
 const index = () => {
   const [users, setusers] = useState<any>(null);
   const [loading, setloading] = useState(true);
+  
   useEffect(() => {
     const fetchuser = async () => {
       try {
@@ -47,6 +31,7 @@ const index = () => {
     };
     fetchuser();
   }, []);
+
   if (loading) {
     return (
       <Mainlayout>
@@ -54,11 +39,13 @@ const index = () => {
       </Mainlayout>
     );
   }
+
   if (!users || users.length === 0) {
     return (
       <div className="text-center text-gray-500 mt-4">No users found.</div>
     );
   }
+
   return (
     <Mainlayout>
       <div className="max-w-6xl">
@@ -85,11 +72,11 @@ const index = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-blue-600 hover:text-blue-800 truncate">
-                      {user.name}
+                    <h3 className="font-semibold text-blue-600 hover:text-blue-800 truncate flex items-center gap-1">
+                      <span>{getHighestBadge(user.badges)}</span> {user.name}
                     </h3>
                     <p className="text-sm text-gray-600 truncate">
-                      @{user.name}
+                      @{user.name.toLowerCase().replace(/\s/g, "")}
                     </p>
                   </div>
                 </div>

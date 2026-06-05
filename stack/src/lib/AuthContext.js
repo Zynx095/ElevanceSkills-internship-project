@@ -3,6 +3,7 @@ import { createContext } from "react";
 import axiosInstance from "./axiosinstance";
 import { toast } from "react-toastify";
 import { useContext } from "react";
+import Link from "next/link";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {

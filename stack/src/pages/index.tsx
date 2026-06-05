@@ -67,15 +67,21 @@ const questions = [
     timeAgo: "25 mins ago",
   },
 ];
+
 export default function Home() {
   const [question, setquestion] = useState<any>(null);
+  const [users, setUsers] = useState<any>([]);
   const [loading, setloading] = useState(true);
   const router = useRouter();
+
   useEffect(() => {
     const fetchquestion = async () => {
       try {
         const res = await axiosInstance.get("/question/getallquestion");
         setquestion(res.data.data);
+
+        const userRes = await axiosInstance.get("/user/getalluser");
+        setUsers(userRes.data.data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -84,6 +90,9 @@ export default function Home() {
     };
     fetchquestion();
   }, []);
+
+  console.log(users);
+
   if (loading) {
     return (
       <Mainlayout>
@@ -91,13 +100,18 @@ export default function Home() {
       </Mainlayout>
     );
   }
+
   if (!question || question.length === 0) {
     return (
       <Mainlayout>
-        <div className="text-center text-gray-500 mt-4">No question found.</div>
+        <div className="text-center text-gray-500 mt-4">No questions found.</div>
       </Mainlayout>
     );
   }
+
+  const topUsers = [...users]
+    .sort((a, b) => (b.rewardPoints || 0) - (a.rewardPoints || 0))
+    .slice(0, 3);
 
   return (
     <Mainlayout>
@@ -111,6 +125,33 @@ export default function Home() {
             Ask Question
           </button>
         </div>
+
+        {/* Leaderboard Card */}
+        {topUsers.length > 0 && (
+          <div className="mb-8 bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">🏆 Top Contributors</h2>
+            <div className="flex flex-col sm:flex-row gap-4">
+              {topUsers.map((u, index) => {
+                const medals = ["🥇", "🥈", "🥉"];
+                return (
+                  <div 
+                    key={u._id || index} 
+                    className="flex-1 flex items-center justify-between bg-gray-50 p-3 rounded-md border border-gray-100"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{medals[index]}</span>
+                      <span className="font-medium text-gray-800">{u.name}</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-600">
+                      {u.rewardPoints || 0} pts
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="w-full">
           <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4 text-sm gap-2 sm:gap-4">
             <span className="text-gray-600">{question.length} questions</span>
@@ -134,7 +175,7 @@ export default function Home() {
                 More ▼
               </button>
               <button className="px-2 sm:px-3 py-1 border border-gray-300 text-gray-600 hover:bg-gray-50 rounded ml-auto text-xs sm:text-sm">
-                🔍 Filter
+                 Filter
               </button>
             </div>
           </div>

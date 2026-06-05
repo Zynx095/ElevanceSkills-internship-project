@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import question from "../models/question.js";
 import User from "../models/auth.js";
+import { updateBadges } from "./auth.js";
 
 export const Askanswer = async (req, res) => {
   const { id: _id } = req.params;
@@ -9,11 +10,9 @@ export const Askanswer = async (req, res) => {
     return res.status(400).json({ message: "question unavailable" });
   }
 
-  // noofanswer is removed from req.body since it will be calculated on the backend
   const { answerbody, useranswered, userid } = req.body;
 
   try {
-    // 1. Add the new answer and fetch the newly updated document
     const updatequestion = await question.findByIdAndUpdate(
       _id,
       {
@@ -24,10 +23,8 @@ export const Askanswer = async (req, res) => {
       { new: true }
     );
 
-    // 2. Calculate the exact number of answers from the database
     const calculatedNoOfAnswer = updatequestion.answer.length;
 
-    // 3. Update the question's noofanswer field with the true count
     await question.findByIdAndUpdate(
       _id,
       {
@@ -35,13 +32,14 @@ export const Askanswer = async (req, res) => {
       }
     );
 
-    // 4. Update the user's reward points
     await User.findByIdAndUpdate(
       userid,
       {
         $inc: { rewardPoints: 5 }
       }
     );
+
+    await updateBadges(userid);
 
     res.status(200).json({ data: updatequestion });
 
@@ -88,6 +86,7 @@ export const deleteanswer = async (req, res) => {
           $inc: { rewardPoints: -5 }
         }
       );
+      await updateBadges(ans.userid);
     }
 
     const updatequestion = await question.updateOne(
@@ -100,17 +99,103 @@ export const deleteanswer = async (req, res) => {
     );
     const updatedQuestion = await question.findById(_id);
 
-await question.findByIdAndUpdate(
-  _id,
-  {
-    $set: {
-      noofanswer: updatedQuestion.answer.length
-    }
-  }
-);
+    await question.findByIdAndUpdate(
+      _id,
+      {
+        $set: {
+          noofanswer: updatedQuestion.answer.length
+        }
+      }
+    );
 
     res.status(200).json({ data: updatequestion });
 
+  } catch (error) {
+    console.log(error);
+    res.status(500).json("something went wrong..");
+  }
+};
+
+export const voteAnswer = async (req, res) => {
+  const { id: questionId } = req.params;
+  const { answerId, value } = req.body;
+
+
+  if (!mongoose.Types.ObjectId.isValid(questionId)) {
+    return res.status(400).json({ message: "Question unavailable" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(answerId)) {
+    return res.status(400).json({ message: "Answer unavailable" });
+  }
+
+  try {
+    const q = await question.findById(questionId);
+
+    if (!q) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    const ans = q.answer.id(answerId);
+
+    if (!ans) {
+      return res.status(404).json({ message: "Answer not found" });
+    }
+
+    if (value === "upvote") {
+      ans.upvotes = (ans.upvotes || 0) + 1;
+
+      console.log("UPVOTES:", ans.upvotes);
+      console.log("BONUS:", ans.bonusAwarded);
+      console.log("USERID:", ans.userid);
+
+      if (
+        ans.upvotes >= 5 &&
+        ans.bonusAwarded !== true
+      ) {
+        console.log("BONUS TRIGGERED");
+
+        await User.findByIdAndUpdate(
+          ans.userid,
+          {
+            $inc: {
+              rewardPoints: 10,
+            },
+          }
+        );
+
+        ans.bonusAwarded = true;
+        await updateBadges(ans.userid);
+      }
+    } else if (value === "downvote") {
+      ans.downvotes = (ans.downvotes || 0) + 1;
+
+      if (ans.downvotePenaltyApplied !== true) {
+        await User.findByIdAndUpdate(
+          ans.userid,
+          {
+            $inc: {
+              rewardPoints: -5
+            }
+          }
+        );
+
+        ans.downvotePenaltyApplied = true;
+
+        await updateBadges(ans.userid);
+      }
+    } else {
+      return res.status(400).json({
+        message: "Invalid vote value",
+      });
+    }
+
+    await q.save();
+
+    res.status(200).json({
+      message: "Answer vote updated",
+      answer: ans,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json("something went wrong..");

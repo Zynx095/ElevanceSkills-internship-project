@@ -8,6 +8,7 @@ const userschema = mongoose.Schema({
   tags: { type: [String] },
   joinDate: { type: Date, default: Date.now },
   friends: { type: [String], default: [] },
+  friendRequests: { type: [String], default: [] },
   rewardPoints: { type: Number, default: 0 },
   subscriptionPlan: { type: String, default: "FREE" },
   subscriptionExpiry: { type: Date },
@@ -18,7 +19,25 @@ const userschema = mongoose.Schema({
     browser: String, os: String, device: String, ip: String, loginTime: {
       type: Date, default: Date.now
     }
+  }],
+  transferHistory: [
+    {
+      type: {
+        type: String
+      },
+      points: Number,
+      otherUserId: String,
+      otherUserName: String,
+      date: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
+  badges: {
+    type: [String],
+    default: []
   }
-  ]
 });
+
 export default mongoose.model("user", userschema);

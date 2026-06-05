@@ -20,6 +20,7 @@ import { useRouter } from "next/router";
 import axiosInstance from "@/lib/axiosinstance";
 import Mainlayout from "@/layout/Mainlayout";
 import { useAuth } from "@/lib/AuthContext";
+
 const questionData = {
   id: 3,
   title: "How can i block user with middleware?",
@@ -249,6 +250,7 @@ This approach is more robust and handles many edge cases automatically.`,
     userVote: null,
   },
 ];
+
 const QuestionDetail = ({ questionId }: any) => {
   const router = useRouter();
   const [question, setquestion] = useState<any>(null);
@@ -257,6 +259,7 @@ const QuestionDetail = ({ questionId }: any) => {
   const [isSubmitting, setisSubmitting] = useState(false);
   const [loading, setloading] = useState(true);
   const { user } = useAuth();
+
   useEffect(() => {
     const fetchuser = async () => {
       try {
@@ -274,6 +277,7 @@ const QuestionDetail = ({ questionId }: any) => {
     };
     fetchuser();
   }, [questionId]);
+
   if (loading) {
     return (
       <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
@@ -286,10 +290,10 @@ const QuestionDetail = ({ questionId }: any) => {
   }
 
   const handleVote = async (vote: String) => {
-    if(!user){
-      toast.info("Please login to continue")
-      router.push("/auth")
-      return
+    if (!user) {
+      toast.info("Please login to continue");
+      router.push("/auth");
+      return;
     }
     try {
       const res = await axiosInstance.patch(`/question/vote/${question._id}`, {
@@ -302,17 +306,53 @@ const QuestionDetail = ({ questionId }: any) => {
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to Vote question");
+      toast.error("Failed to Vote Post");
     }
   };
+
+  const handleAnswerVote = async (answerId: string, voteType: string) => {
+    if (!user) {
+      toast.info("Please login to continue");
+      router.push("/auth");
+      return;
+    }
+    try {
+      await axiosInstance.patch(`/answer/vote/${question._id}`, {
+        answerId,
+        value: voteType,
+      });
+
+      setquestion((prev: any) => {
+        const updatedAnswers = prev.answer.map((ans: any) => {
+          if (ans._id === answerId) {
+            return {
+              ...ans,
+              upvotes: voteType === "upvote" ? (ans.upvotes || 0) + 1 : (ans.upvotes || 0),
+              downvotes: voteType === "downvote" ? (ans.downvotes || 0) + 1 : (ans.downvotes || 0),
+            };
+          }
+          return ans;
+        });
+        return { ...prev, answer: updatedAnswers };
+      });
+      
+      toast.success("Answer vote updated");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to vote on answer");
+    }
+  };
+  
+
   const handlebookmark = () => {
     setquestion((prev: any) => ({ ...prev, isBookmarked: !prev.isBookmarked }));
   };
+
   const handleSubmitanswer = async () => {
-    if(!user){
-      toast.info("Please login to continue")
-      router.push("/auth")
-      return
+    if (!user) {
+      toast.info("Please login to continue");
+      router.push("/auth");
+      return;
     }
     if (!newanswer.trim()) return;
     setisSubmitting(true);
@@ -348,11 +388,12 @@ const QuestionDetail = ({ questionId }: any) => {
       setisSubmitting(false);
     }
   };
+
   const handleDelete = async () => {
-    if(!user){
-      toast.info("Please login to continue")
-      router.push("/auth")
-      return
+    if (!user) {
+      toast.info("Please login to continue");
+      router.push("/auth");
+      return;
     }
     if (!window.confirm("Are you sure you want to delete this question?"))
       return;
@@ -369,11 +410,12 @@ const QuestionDetail = ({ questionId }: any) => {
       toast.error("Failed to delete question");
     }
   };
+
   const handleDeleteanswer = async (id: String) => {
-    if(!user){
-      toast.info("Please login to continue")
-      router.push("/auth")
-      return
+    if (!user) {
+      toast.info("Please login to continue");
+      router.push("/auth");
+      return;
     }
     if (!window.confirm("Are you sure you want to delete this answer?"))
       return;
@@ -571,6 +613,29 @@ const QuestionDetail = ({ questionId }: any) => {
             <Card key={ans._id} className={""}>
               <CardContent className="p-0">
                 <div className="flex flex-col sm:flex-row">
+                  {/* Answer Voting Section */}
+                  <div className="flex sm:flex-col items-center sm:items-center p-4 sm:p-6 border-b sm:border-b-0 sm:border-r border-gray-200">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="p-2 text-gray-600 hover:text-orange-500"
+                      onClick={() => handleAnswerVote(ans._id, "upvote")}
+                    >
+                      <ChevronUp className="w-6 h-6" />
+                    </Button>
+                    <span className="font-medium text-gray-700">
+                      {(ans.upvotes || 0) - (ans.downvotes || 0)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="p-2 text-gray-600 hover:text-orange-500"
+                      onClick={() => handleAnswerVote(ans._id, "downvote")}
+                    >
+                      <ChevronDown className="w-6 h-6" />
+                    </Button>
+                  </div>
+
                   {/* Answer Content */}
                   <div className="flex-1 p-4 sm:p-6">
                     <div className="prose max-w-none mb-6">
@@ -664,7 +729,7 @@ const QuestionDetail = ({ questionId }: any) => {
             Your Answer
           </h3>
           <Textarea
-            placeholder="Write your answer here... You can use Markdown formatting."
+            placeholder="Write your Answer here... You can use Markdown formatting."
             value={newanswer}
             onChange={(e) => setnewAnswer(e.target.value)}
             className="min-h-32 mb-4 resize-none"
@@ -675,10 +740,10 @@ const QuestionDetail = ({ questionId }: any) => {
               disabled={!newanswer.trim() || isSubmitting}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {isSubmitting ? "Posting..." : "Post Your Answer"}
+              {isSubmitting ? "Posting..." : "Comment"}
             </Button>
             <p className="text-sm text-gray-600">
-              By posting your answer, you agree to the{" "}
+              By posting your Answer, you agree to the{" "}
               <Link href="#" className="text-blue-600 hover:underline">
                 privacy policy
               </Link>{" "}

@@ -1,17 +1,78 @@
 import mongoose from "mongoose";
 import question from "../models/question.js";
-
+import User from "../models/auth.js";
 
 export const Askquestion = async (req, res) => {
   const { postquestiondata } = req.body;
-  const postques = new question({ ...postquestiondata });
+
   try {
+    const currentUser = await User.findById(
+      postquestiondata.userid
+    );
+
+    if (!currentUser) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+    const friendCount =
+      currentUser.friends?.length || 0;
+  
+
+    if (friendCount === 0) {
+      return res.status(403).json({
+        message:
+          "You need at least 1 friend to post questions."
+      });
+    }
+
+    let dailyLimit;
+
+    if (friendCount >= 10) {
+      dailyLimit = Infinity;
+    } else {
+      dailyLimit = friendCount;
+    }
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+
+    const questionsToday =
+      await question.countDocuments({
+        userid: postquestiondata.userid,
+        askedon: {
+          $gte: today
+        }
+      });
+
+    if (
+      dailyLimit !== Infinity &&
+      questionsToday >= dailyLimit
+    ) {
+      return res.status(403).json({
+        message: `Daily posting limit reached (${dailyLimit} posts/day)`
+      });
+    }
+
+    const postques =
+      new question({
+        ...postquestiondata
+      });
+
     await postques.save();
-    res.status(200).json({ data: postques });
+
+    res.status(200).json({
+      data: postques
+    });
+
   } catch (error) {
     console.log(error);
-    res.status(500).json("something went wrong..");
-    return;
+
+    res.status(500).json(
+      "something went wrong.."
+    );
   }
 };
 

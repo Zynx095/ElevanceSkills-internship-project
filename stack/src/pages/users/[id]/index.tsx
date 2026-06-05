@@ -20,27 +20,6 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-const getUserData = (id: string) => {
-  const users = {
-    "1": {
-      id: 1,
-      name: "John Doe",
-      joinDate: "2019-03-15",
-      about:
-        "Full-stack developer with 8+ years of experience in JavaScript, React, and Node.js. Passionate about clean code and helping others learn programming. I enjoy working on open-source projects and contributing to the developer community.",
-      tags: [
-        "javascript",
-        "react",
-        "node.js",
-        "typescript",
-        "python",
-        "mongodb",
-      ],
-    },
-  };
-  return users[id as keyof typeof users] || users["1"];
-};
-
 const index = () => {
   const { user } = useAuth();
   const router = useRouter();
@@ -57,12 +36,16 @@ const index = () => {
   const [receiverId, setReceiverId] = useState("");
   const [transferPoints, setTransferPoints] = useState("");
 
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [searchUser, setSearchUser] = useState("");
+
   useEffect(() => {
     const fetchuser = async () => {
       try {
         const res = await axiosInstance.get("/user/getalluser");
         const matcheduser = res.data.data.find((u: any) => u._id === id);
         setusers(matcheduser);
+        setAllUsers(res.data.data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -121,13 +104,60 @@ const index = () => {
       tags: editForm.tags.filter((tag: any) => tag !== tagToRemove),
     });
   };
+  const handleSendFriendRequest = async () => {
+    try {
+      const res = await axiosInstance.post(
+        "/user/send-friend-request",
+        {
+          senderId: user?._id,
+          receiverId: users?._id
+        }
+      );
+
+      toast.success(res.data.message);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+        "Failed to send request"
+      );
+    }
+  };
+  const handleAcceptRequest = async (
+    senderId: string
+  ) => {
+    try {
+      const res = await axiosInstance.post(
+        "/user/accept-friend-request",
+        {
+          userId: user?._id,
+          senderId
+        }
+      );
+
+      toast.success(res.data.message);
+
+      const refetch =
+        await axiosInstance.get(
+          "/user/getalluser"
+        );
+
+      const matcheduser =
+        refetch.data.data.find(
+          (u: any) => u._id === id
+        );
+
+      setusers(matcheduser);
+      setAllUsers(refetch.data.data);
+    } catch (error) {
+      toast.error(
+        "Failed to accept request"
+      );
+    }
+  };
+
 
   const handleTransferPoints = async () => {
     try {
-      console.log("Auth User:", user);
-      console.log("Sender ID:", user?._id);
-      console.log("Receiver ID:", receiverId);
-      console.log("Points:", transferPoints);
       const res = await axiosInstance.post(
         "/user/transfer-points",
         {
@@ -140,7 +170,12 @@ const index = () => {
       toast.success(res.data.message);
 
       setReceiverId("");
+      setSearchUser("");
       setTransferPoints("");
+
+      const refetch = await axiosInstance.get("/user/getalluser");
+      const matcheduser = refetch.data.data.find((u: any) => u._id === id);
+      setusers(matcheduser);
 
     } catch (error: any) {
       toast.error(
@@ -151,6 +186,17 @@ const index = () => {
 
   const currentUserId = user?._id;
   const isOwnProfile = id === currentUserId;
+  const friendCount = users?.friends?.length || 0;
+  const dailyLimit =
+    friendCount >= 10
+      ? "Unlimited"
+      : friendCount;
+
+  const filteredUsers = allUsers.filter(
+    (u) =>
+      u._id !== user?._id &&
+      u.name.toLowerCase().includes(searchUser.toLowerCase())
+  );
 
   return (
     <Mainlayout>
@@ -174,7 +220,7 @@ const index = () => {
                 </h1>
               </div>
 
-              {isOwnProfile && (
+              {isOwnProfile ? (
                 <Dialog open={isEditing} onOpenChange={setIsEditing}>
                   <DialogTrigger asChild>
                     <Button
@@ -185,10 +231,12 @@ const index = () => {
                       Edit Profile
                     </Button>
                   </DialogTrigger>
+
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white text-gray-900">
                     <DialogHeader>
                       <DialogTitle>Edit Profile</DialogTitle>
                     </DialogHeader>
+
                     <div className="space-y-6 py-4">
                       {/* Basic Information */}
                       <div className="space-y-4">
@@ -237,7 +285,6 @@ const index = () => {
                         <h3 className="text-lg font-semibold">
                           Skills & Technologies
                         </h3>
-
                         <div className="space-y-3">
                           <div className="flex gap-2">
                             <Input
@@ -257,7 +304,6 @@ const index = () => {
                               <Plus className="w-4 h-4" />
                             </Button>
                           </div>
-
                           <div className="flex flex-wrap gap-2">
                             {editForm.tags.map((tag: any) => {
                               return (
@@ -279,8 +325,6 @@ const index = () => {
                           </div>
                         </div>
                       </div>
-
-                      {/* Action Buttons */}
                       <div className="flex justify-end gap-3 pt-4 border-t">
                         <Button
                           variant="outline"
@@ -299,6 +343,14 @@ const index = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
+
+              ) : (
+                <Button
+                  onClick={handleSendFriendRequest}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Add Friend
+                </Button>
               )}
             </div>
             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-4">
@@ -316,25 +368,153 @@ const index = () => {
                 Reward Points
               </span>
             </div>
-            <div className="flex flex-wrap items-center space-x-6 text-sm">
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                <span className="font-semibold">5</span>
-                <span className="text-gray-600 ml-1">gold badges</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-gray-400 rounded-full mr-2"></div>
-                <span className="font-semibold">23</span>
-                <span className="text-gray-600 ml-1">silver badges</span>
-              </div>
-              <div className="flex items-center">
-                <div className="w-3 h-3 bg-amber-600 rounded-full mr-2"></div>
-                <span className="font-semibold">45</span>
-                <span className="text-gray-600 ml-1">bronze badges</span>
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="font-semibold text-lg">
+                {users.friends?.length || 0}
+              </span>
+              <span className="text-gray-600">
+                Friends
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              {users.badges && users.badges.map((badge: string) => {  
+                let emoji = "";
+                if (badge === "Elite Contributor") emoji = "👑";
+                else if (badge === "Gold Contributor") emoji = "🥇";
+                else if (badge === "Silver Contributor") emoji = "🥈";
+                else if (badge === "Bronze Contributor") emoji = "🥉";
+
+                return (
+                  <Badge key={badge} variant="outline" className="flex items-center gap-1 text-sm bg-gray-50">
+                    <span>{emoji}</span> {badge}
+                  </Badge>
+                );
+              })}
             </div>
           </div>
         </div>
+        <h2 className="text-xl font-semibold mt-6">
+          Login History
+        </h2>
+
+        <div className="space-y-2 mt-3">
+          {users.loginHistory?.map((log: any, index: number) => (
+            <div
+              key={index}
+              className="border p-3 rounded"
+            >
+              <p>Browser: {log.browser}</p>
+              <p>OS: {log.os}</p>
+              <p>Device: {log.device}</p>
+              <p>IP: {log.ip}</p>
+              <p>
+                Time:
+                {new Date(log.loginTime)
+                  .toLocaleString()}
+              </p>
+            </div>
+          ))}
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Friend Requests</CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            {users.friendRequests?.length > 0 ? (
+              users.friendRequests.map(
+                (requestId: string) => {
+                  const sender =
+                    allUsers.find(
+                      (u) => u._id === requestId
+                    );
+
+                  return (
+                    <div
+                      key={requestId}
+                      className="flex justify-between items-center mb-2"
+                    >
+                      <span>
+                        {sender?.name}
+                      </span>
+
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleAcceptRequest(
+                            requestId
+                          )
+                        }
+                      >
+                        Accept
+                      </Button>
+                    </div>
+                  );
+                }
+              )
+            ) : (
+              <p>No friend requests</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Friends</CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            {users.friends?.length > 0 ? (
+              users.friends.map((friendId: string) => {
+                const friend = allUsers.find(
+                  (u) => u._id === friendId
+                );
+
+                return (
+                  <div
+                    key={friendId}
+                    className="flex justify-between items-center mb-2 border-b pb-2"
+                  >
+                    <span>
+                      {friend?.name}
+                    </span>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        router.push(
+                          `/users/${friendId}`
+                        )
+                      }
+                    >
+                      View
+                    </Button>
+                  </div>
+                );
+              })
+            ) : (
+              <p>No friends yet</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="mb-6">
+          <CardContent className="pt-4">
+            <p>
+              Friends: {friendCount}
+            </p>
+
+            <p>
+              Daily Question Limit: {dailyLimit}
+            </p>
+
+            {friendCount === 0 && (
+              <p className="text-red-500">
+                You need at least 1 friend
+                before posting questions.
+              </p>
+            )}
+          </CardContent>
+        </Card>
         <div className="grid grid-cols-1 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card>
@@ -354,15 +534,61 @@ const index = () => {
 
             <Card>
               <CardHeader>
+                <CardTitle>Achievements</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col gap-3">
+                  {users.badges && users.badges.length > 0 ? (
+                    users.badges.map((badge: string) => {
+                      let emoji = "";
+                      if (badge === "Elite Contributor") emoji = "👑";
+                      else if (badge === "Gold Contributor") emoji = "🥇";
+                      else if (badge === "Silver Contributor") emoji = "🥈";
+                      else if (badge === "Bronze Contributor") emoji = "🥉";
+
+                      return (
+                        <div key={badge} className="flex items-center gap-2 text-gray-800 font-medium">
+                          <span className="text-xl">{emoji}</span>
+                          {badge}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-gray-500 text-sm">No achievements earned yet.</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>Transfer Reward Points</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <Input
-                    placeholder="Receiver User ID"
-                    value={receiverId}
-                    onChange={(e) => setReceiverId(e.target.value)}
+                    placeholder="Search user..."
+                    value={searchUser}
+                    onChange={(e) => setSearchUser(e.target.value)}
                   />
+
+                  {filteredUsers.length > 0 && (
+                    <div className="max-h-40 overflow-y-auto border rounded">
+                      {filteredUsers.slice(0, 5).map((u) => (
+                        <div
+                          key={u._id}
+                          className="p-2 cursor-pointer hover:bg-gray-100"
+                          onClick={() => {
+                            setReceiverId(u._id);
+                            setSearchUser(u.name);
+                          }}
+                        >
+                          {u.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <Input
                     type="number"
                     placeholder="Points"
@@ -378,11 +604,45 @@ const index = () => {
 
             <Card>
               <CardHeader>
+                <CardTitle>Transfer History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {users?.transferHistory && users.transferHistory.length > 0 ? (
+                    [...users.transferHistory]
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .map((historyItem: any, index: number) => (
+                        <div key={index} className="border-b pb-2 last:border-0 last:pb-0">
+                          <div className="font-medium text-sm">
+                            {historyItem.type === "SENT" ? (
+                              <span className="text-red-600">
+                                SENT {historyItem.points} points to {historyItem.otherUserName}
+                              </span>
+                            ) : (
+                              <span className="text-green-600">
+                                RECEIVED {historyItem.points} points from {historyItem.otherUserName}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {new Date(historyItem.date).toISOString().split("T")[0]}
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <p className="text-gray-500 text-sm">No transfer history available.</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>Top Tags</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {users.tags.map((tag: string) => (
+                  {users.tags && users.tags.map((tag: string) => (
                     <div
                       key={tag}
                       className="flex items-center justify-between"
@@ -407,4 +667,4 @@ const index = () => {
   );
 };
 
-export default index; 
+export default index;
