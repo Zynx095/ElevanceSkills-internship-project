@@ -7,7 +7,11 @@ import {
   transferPoints,
   forgotPassword,
   sendFriendRequest,
-  acceptFriendRequest
+  acceptFriendRequest,
+  updateSubscription,
+  updateLanguage,
+  verifyLanguageOTP,
+  verifyLoginOTP
 } from "../controller/auth.js";
 
 const router = express.Router();
@@ -19,7 +23,17 @@ router.post("/send-friend-request", auth, sendFriendRequest);
 router.post("/accept-friend-request", auth, acceptFriendRequest);
 router.get("/getalluser", getallusers);
 router.patch("/update/:id", auth, updateprofile);
-
+router.patch("/subscription/:id", auth, updateSubscription);
+router.patch("/language/:id", auth, updateLanguage);
+router.post(
+  "/verify-login-otp",
+  verifyLoginOTP
+);
+router.post(
+  "/verify-language-otp/:id",
+  auth,
+  verifyLanguageOTP
+);
 router.post(
   "/transfer-points",
   auth,

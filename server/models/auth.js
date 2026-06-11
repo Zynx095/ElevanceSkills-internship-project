@@ -14,30 +14,74 @@ const userschema = mongoose.Schema({
   subscriptionExpiry: { type: Date },
   language: { type: String, default: "English" },
   mobile: { type: String },
-  forgotPasswordLastUsed: { type: Date },
-  loginHistory: [{
-    browser: String, os: String, device: String, ip: String, loginTime: {
-      type: Date, default: Date.now
+  loginOTP: {
+  type: String,
+  default: ""
+},
+
+otpExpiry: {
+  type: Date
+},
+
+languageOTP: {
+  type: String,
+  default: ""
+},
+
+languageOTPExpiry: {
+  type: Date
+},
+
+pendingLanguage: {
+  type: String
+},
+
+forgotPasswordLastUsed: {
+  type: Date
+},
+
+loginHistory: [
+  {
+    browser: String,
+    os: String,
+    device: String,
+    ip: String,
+    loginTime: {
+      type: Date,
+      default: Date.now
     }
-  }],
-  transferHistory: [
-    {
-      type: {
-        type: String
-      },
-      points: Number,
-      otherUserId: String,
-      otherUserName: String,
-      date: {
-        type: Date,
-        default: Date.now
-      }
-    }
-  ],
-  badges: {
-    type: [String],
-    default: []
   }
+],
+
+transferHistory: [
+  {
+    type: {
+      type: String
+    },
+    points: Number,
+    otherUserId: String,
+    otherUserName: String,
+    date: {
+      type: Date,
+      default: Date.now
+    }
+  }
+],
+invoiceHistory: [
+  {
+    invoiceNumber: String,
+    plan: String,
+    amount: Number,
+    purchaseDate: {
+      type: Date,
+      default: Date.now
+    }
+  }
+],
+badges: {
+  type: [String],
+  default: []
+}
 });
 
 export default mongoose.model("user", userschema);

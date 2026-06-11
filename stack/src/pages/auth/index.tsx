@@ -13,11 +13,20 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import axiosInstance from "@/lib/axiosinstance";
 
 const index = () => {
   const router = useRouter();
-  const { Login, loading } = useAuth();
+  const { Login, loading, setUser } = useAuth();
   const [form, setform] = useState({ email: "", password: "" });
+  const [showOTP, setShowOTP] =
+    useState(false);
+
+  const [otp, setOtp] =
+    useState("");
+
+  const [otpEmail, setOtpEmail] =
+    useState("");
   const handleChange = (e: any) => {
     setform({ ...form, [e.target.id]: e.target.value });
   };
@@ -28,12 +37,77 @@ const index = () => {
       return;
     }
     try {
-      await Login(form);
+      const result =
+        await Login(form);
+
+      if (
+        result?.otpRequired
+      ) {
+
+        setShowOTP(true);
+
+        setOtpEmail(
+          result.email
+        );
+
+        return;
+      }
+
       router.push("/");
     } catch (error) {
       console.log(error);
     }
   };
+  const verifyOTP =
+    async () => {
+
+      try {
+
+        const res =
+          await axiosInstance.post(
+            "/user/verify-login-otp",
+            {
+              email:
+                otpEmail,
+              otp
+            }
+          );
+
+        const {
+          data,
+          token
+        } = res.data;
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...data,
+            token
+          })
+        );
+
+        setUser({
+          ...data,
+          token
+        });
+
+        toast.success(
+          "Login Successful"
+        );
+
+        router.push("/");
+
+      } catch (error: any) {
+
+        toast.error(
+          error.response?.data
+            ?.message ||
+          "OTP verification failed"
+        );
+
+      }
+
+    };
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -135,6 +209,34 @@ const index = () => {
                   value={form.password}
                 />
               </div>
+              {
+                showOTP && (
+                  <div className="space-y-2">
+
+                    <Label>
+                      Enter OTP
+                    </Label>
+
+                    <Input
+                      value={otp}
+                      onChange={(e) =>
+                        setOtp(
+                          e.target.value
+                        )
+                      }
+                    />
+
+                    <Button
+                      type="button"
+                      onClick={verifyOTP}
+                      className="w-full"
+                    >
+                      Verify OTP
+                    </Button>
+
+                  </div>
+                )
+              }
               <Button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-sm"

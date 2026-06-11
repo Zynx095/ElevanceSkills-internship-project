@@ -18,7 +18,7 @@ export const Askquestion = async (req, res) => {
 
     const friendCount =
       currentUser.friends?.length || 0;
-  
+
 
     if (friendCount === 0) {
       return res.status(403).json({
@@ -27,13 +27,39 @@ export const Askquestion = async (req, res) => {
       });
     }
 
-    let dailyLimit;
+    let friendLimit;
 
     if (friendCount >= 10) {
-      dailyLimit = Infinity;
+      friendLimit = Infinity;
     } else {
-      dailyLimit = friendCount;
+      friendLimit = friendCount;
     }
+
+    let subscriptionLimit = 1;
+
+    switch (currentUser.subscriptionPlan) {
+
+      case "BRONZE":
+        subscriptionLimit = 5;
+        break;
+
+      case "SILVER":
+        subscriptionLimit = 10;
+        break;
+
+      case "GOLD":
+        subscriptionLimit = Infinity;
+        break;
+
+      default:
+        subscriptionLimit = 1;
+    }
+
+    const dailyLimit =
+      Math.max(
+        friendLimit,
+        subscriptionLimit
+      );
 
     const today = new Date();
 
@@ -101,7 +127,7 @@ export const deletequestion = async (req, res) => {
 };
 export const votequestion = async (req, res) => {
   const { id: _id } = req.params;
-  const { value ,userid} = req.body;
+  const { value, userid } = req.body;
   if (!mongoose.Types.ObjectId.isValid(_id)) {
     return res.status(400).json({ message: "question unavailable" });
   }

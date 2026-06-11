@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       const { data, token } = res.data;
-      localStorage.setItem("user", JSON.stringify({...data,token}));
+      localStorage.setItem("user", JSON.stringify({ ...data, token }));
       setUser(data);
       toast.success("Signup Successful");
     } catch (error) {
@@ -36,23 +36,73 @@ export const AuthProvider = ({ children }) => {
       toast.error(msg);
     }
   };
-  const Login = async ({ email, password }) => {
+  const Login = async ({
+    email,
+    password
+  }) => {
+
     setloading(true);
     seterror(null);
+
     try {
-      const res = await axiosInstance.post("/user/login", {
-        email,
-        password,
-      });
-      const { data, token } = res.data;
-      localStorage.setItem("user", JSON.stringify({...data,token}));
+
+      const res =
+        await axiosInstance.post(
+          "/user/login",
+          {
+            email,
+            password
+          }
+        );
+
+      if (
+        res.data.otpRequired
+      ) {
+
+        toast.success(
+          "OTP Generated. Check terminal."
+        );
+
+        return {
+          otpRequired: true,
+          email: res.data.email
+        };
+      }
+
+      const {
+        data,
+        token
+      } = res.data;
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          ...data,
+          token
+        })
+      );
+
       setUser(data);
-      toast.success("Login Successful");
+
+      toast.success(
+        "Login Successful"
+      );
+      return {
+        otpRequired: false
+      };
+
     } catch (error) {
-      const msg = error.response?.data.message || "Login failed";
+
+      const msg =
+        error.response?.data.message ||
+        "Login failed";
+
       seterror(msg);
+
       toast.error(msg);
+
     }
+
   };
   const Logout = () => {
     setUser(null);
@@ -61,7 +111,7 @@ export const AuthProvider = ({ children }) => {
   };
   return (
     <AuthContext.Provider
-      value={{ user, Signup, Login, Logout, loading, error }}
+      value={{ user,setUser, Signup, Login, Logout, loading, error }}
     >
       {children}
     </AuthContext.Provider>

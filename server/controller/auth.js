@@ -3,7 +3,9 @@ import user from "../models/auth.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { UAParser } from "ua-parser-js";
-
+import {
+  sendInvoiceEmail
+} from "../utils/sendEmail.js";
 export const updateBadges = async (userId) => {
   try {
     const currentUser = await user.findById(userId);
@@ -52,7 +54,7 @@ export const Signup = async (req, res) => {
       email,
       password: hashpassword,
     });
-
+    console.log("GENERATING TOKEN");
     const token = jwt.sign(
       { email: newuser.email, id: newuser._id },
       process.env.JWT_SECRET,
@@ -65,13 +67,37 @@ export const Signup = async (req, res) => {
     return;
   }
 };
-
+const generateOTP = () => {
+  return Math.floor(
+    100000 + Math.random() * 900000
+  ).toString();
+};
 export const Login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const exisitinguser = await user.findOne({ email });
     if (!exisitinguser) {
       return res.status(404).json({ message: "User does not exist" });
+    }
+    if (
+      exisitinguser.subscriptionExpiry &&
+      new Date() >
+      new Date(
+        exisitinguser.subscriptionExpiry
+      )
+    ) {
+
+      exisitinguser.subscriptionPlan =
+        "FREE";
+
+      exisitinguser.subscriptionExpiry =
+        null;
+      console.log(
+        "Subscription expired. Downgraded to FREE."
+      );
+
+      await exisitinguser.save();
+
     }
 
 
@@ -89,11 +115,53 @@ export const Login = async (req, res) => {
     const browser =
       parser.getBrowser().name || "Unknown";
 
+    if (browser === "Chrome") {
+
+      const otp =
+        generateOTP();
+
+      exisitinguser.loginOTP =
+        otp;
+
+      console.log(
+        "OTP:",
+        otp
+      );
+
+      exisitinguser.otpExpiry =
+        new Date(
+          Date.now() +
+          5 * 60 * 1000
+        );
+
+      await exisitinguser.save();
+
+      return res.status(200).json({
+        otpRequired: true,
+        email:
+          exisitinguser.email
+      });
+
+    }
+
     const os =
       parser.getOS().name || "Unknown";
 
     const device =
       parser.getDevice().type || "Desktop";
+
+    const currentHour =
+      new Date().getHours();
+
+    if (
+      device === "mobile" &&
+      (currentHour < 10 || currentHour >= 13)
+    ) {
+      return res.status(403).json({
+        message:
+          "Mobile login is allowed only between 10 AM and 1 PM."
+      });
+    }
 
     const ip =
       req.headers["x-forwarded-for"] ||
@@ -150,11 +218,406 @@ export const updateprofile = async (req, res) => {
     return;
   }
 };
+export const updateLanguage = async (
+  req,
+  res
+) => {
+
+  const { id } = req.params;
+
+  const { language } =
+    req.body;
+
+  try {
+
+    const existingUser =
+      await user.findById(id);
+    console.log(
+      "UPDATE USER ID:",
+      existingUser._id
+    );
+
+    if (!existingUser) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+    const checkUser =
+      await user.findById(id);
+
+    console.log(
+      "AFTER SAVE:",
+      checkUser.languageOTP
+    );
+
+    console.log(
+      "AFTER SAVE PENDING:",
+      checkUser.pendingLanguage
+    );
+
+    const otp =
+      generateOTP();
+
+    existingUser.languageOTP =
+      otp;
+
+    existingUser.pendingLanguage =
+      language;
+
+    existingUser.languageOTPExpiry =
+      new Date(
+        Date.now() +
+        5 * 60 * 1000
+      );
+    await existingUser.save();
+
+    console.log(
+      "LANGUAGE OTP:",
+      otp
+    );
+
+    res.status(200).json({
+      otpRequired: true,
+      otp,
+      message:
+        language === "French"
+          ? "Email OTP required"
+          : "Mobile OTP required"
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message:
+        "something went wrong.."
+    });
+
+  }
+
+};
+export const updateSubscription = async (req, res) => {
+  const { id } = req.params;
+  const { subscriptionPlan } = req.body;
+
+  try {
+
+    const now = new Date();
+
+    const indiaHour = new Date(
+      now.toLocaleString(
+        "en-US",
+        {
+          timeZone: "Asia/Kolkata"
+        }
+      )
+    ).getHours();
+
+    if (false) {
+      return res.status(403).json({
+        message:
+          "Payments are allowed only between 10 AM and 11 AM IST."
+      });
+    }
+    let amount = 0;
+
+    if (
+      subscriptionPlan === "BRONZE"
+    ) {
+      amount = 100;
+    }
+
+    if (
+      subscriptionPlan === "SILVER"
+    ) {
+      amount = 300;
+    }
+
+    if (
+      subscriptionPlan === "GOLD"
+    ) {
+      amount = 1000;
+    }
+
+    const invoice = {
+      invoiceNumber:
+        "INV-" +
+        Date.now(),
+
+      plan:
+        subscriptionPlan,
+
+      amount,
+
+      purchaseDate:
+        new Date()
+    };
+
+    const updatedUser =
+      await user.findByIdAndUpdate(
+        id,
+        {
+          subscriptionPlan,
+
+          subscriptionExpiry:
+            new Date(
+              Date.now() +
+              30 * 24 * 60 * 60 * 1000
+            ),
+
+          $push: {
+            invoiceHistory:
+              invoice
+          }
+        },
+        {
+          new: true
+        }
+      );
+    await sendInvoiceEmail(
+      updatedUser.email,
+      invoice
+    );
+
+    res.status(200).json({
+      message:
+        "Subscription activated",
+
+      data:
+        updatedUser,
+
+      invoice
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message:
+        "something went wrong.."
+    });
+
+  }
+};
+export const verifyLanguageOTP =
+  async (
+    req,
+    res
+  ) => {
+
+    const { id } =
+      req.params;
+
+    const { otp } =
+      req.body;
+
+    try {
+
+      const existingUser =
+        await user.findById(id);
+      console.log(
+        "VERIFY LANGUAGE OTP HIT"
+      );
+      console.log(
+        "VERIFY USER ID:",
+        existingUser._id
+      );
+      if (!existingUser) {
+        return res.status(404).json({
+          message:
+            "User not found"
+        });
+      }
+      console.log("OTP FROM USER:", otp);
+
+      console.log(
+        "OTP IN DATABASE:",
+        existingUser.languageOTP
+      );
+
+      if (
+        existingUser.languageOTP !==
+        otp
+      ) {
+        return res.status(400).json({
+          message:
+            "Invalid OTP"
+        });
+      }
+
+      if (
+        new Date() >
+        new Date(
+          existingUser.languageOTPExpiry
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "OTP expired"
+        });
+      }
+
+      existingUser.language =
+        existingUser.pendingLanguage;
+
+      existingUser.pendingLanguage =
+        null;
+
+      existingUser.languageOTP =
+        "";
+
+      existingUser.languageOTPExpiry =
+        null;
+
+      await existingUser.save();
+
+      res.status(200).json({
+        message:
+          "Language updated successfully",
+        language:
+          existingUser.language
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "something went wrong.."
+      });
+
+    }
+
+  };
+export const verifyLoginOTP =
+  async (
+    req,
+    res
+  ) => {
+
+    const { email, otp } =
+      req.body;
+
+    try {
+
+      const existingUser =
+        await user.findOne({
+          email
+        });
+
+      if (!existingUser) {
+        return res.status(404).json({
+          message:
+            "User not found"
+        });
+      }
+
+      if (
+        String(
+          existingUser.loginOTP
+        ) !==
+        String(otp)
+      ) {
+        return res.status(400).json({
+          message:
+            "Invalid OTP"
+        });
+      }
+
+      if (
+        new Date() >
+        new Date(
+          existingUser.otpExpiry
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "OTP expired"
+        });
+      }
+
+      existingUser.loginOTP =
+        "";
+
+      existingUser.otpExpiry =
+        null;
+
+      await existingUser.save();
+
+      const token =
+        jwt.sign(
+          {
+            email:
+              existingUser.email,
+            id:
+              existingUser._id
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1h"
+          }
+        );
+
+      res.status(200).json({
+        data:
+          existingUser,
+        token
+      });
+
+    } catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        message:
+          "something went wrong.."
+      });
+
+    }
+
+  };
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
     const existingUser = await user.findOne({ email });
+    console.log(
+      "PLAN:",
+      exisitinguser.subscriptionPlan
+    );
+
+    console.log(
+      "EXPIRY:",
+      exisitinguser.subscriptionExpiry
+    );
+
+    console.log(
+      "NOW:",
+      new Date()
+    );
+    if (
+      exisitinguser.subscriptionExpiry &&
+      new Date() >
+      new Date(
+        exisitinguser.subscriptionExpiry
+      )
+    ) {
+
+      exisitinguser.subscriptionPlan =
+        "FREE";
+
+      exisitinguser.subscriptionExpiry =
+        null;
+
+      await exisitinguser.save();
+
+      console.log(
+        "Subscription expired. Downgraded to FREE."
+      );
+    }
 
     if (!existingUser) {
       return res
@@ -311,7 +774,7 @@ export const sendFriendRequest = async (req, res) => {
   }
 };
 
- export const acceptFriendRequest = async (req, res) => {
+export const acceptFriendRequest = async (req, res) => {
   const { userId, senderId } = req.body;
 
   try {

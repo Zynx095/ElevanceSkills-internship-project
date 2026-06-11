@@ -154,8 +154,33 @@ const index = () => {
       );
     }
   };
+  const handleLanguageChange =
+  async (
+    language: string
+  ) => {
 
+    try {
 
+      const res =
+        await axiosInstance.patch(
+          `/user/language/${user?._id}`,
+          {
+            language
+          }
+        );
+
+      console.log(
+        "LANGUAGE RESPONSE:",
+        res.data
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  };
   const handleTransferPoints = async () => {
     try {
       const res = await axiosInstance.post(
@@ -180,6 +205,30 @@ const index = () => {
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Transfer failed"
+      );
+    }
+  };
+  const handlePlanUpgrade = async (
+    plan: string
+  ) => {
+    try {
+
+      await axiosInstance.patch(
+        `/user/subscription/${user?._id}`,
+        {
+          subscriptionPlan: plan
+        }
+      );
+
+      toast.success(
+        `Upgraded to ${plan}`
+      );
+
+      window.location.reload();
+
+    } catch (error) {
+      toast.error(
+        "Failed to update plan"
       );
     }
   };
@@ -377,7 +426,7 @@ const index = () => {
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              {users.badges && users.badges.map((badge: string) => {  
+              {users.badges && users.badges.map((badge: string) => {
                 let emoji = "";
                 if (badge === "Elite Contributor") emoji = "👑";
                 else if (badge === "Gold Contributor") emoji = "🥇";
@@ -513,6 +562,153 @@ const index = () => {
                 before posting questions.
               </p>
             )}
+          </CardContent>
+        </Card>
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>
+              Subscription Plan
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+
+            <p className="mb-4">
+              Current Plan:
+              <strong>
+                {" "}
+                {users.subscriptionPlan ||
+                  "FREE"}
+              </strong>
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+
+              <Button
+                onClick={() =>
+                  handlePlanUpgrade(
+                    "FREE"
+                  )
+                }
+              >
+                FREE
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handlePlanUpgrade(
+                    "BRONZE"
+                  )
+                }
+              >
+                Bronze ₹100
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handlePlanUpgrade(
+                    "SILVER"
+                  )
+                }
+              >
+                Silver ₹300
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handlePlanUpgrade(
+                    "GOLD"
+                  )
+                }
+              >
+                Gold ₹1000
+              </Button>
+
+            </div>
+
+          </CardContent>
+        </Card>
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>
+              Language Settings
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+
+            <p className="mb-4">
+              Current Language:
+              <strong>
+                {" "}
+                {users.language}
+              </strong>
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+
+              <Button
+                onClick={() =>
+                  handleLanguageChange(
+                    "English"
+                  )
+                }
+              >
+                English
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handleLanguageChange(
+                    "Spanish"
+                  )
+                }
+              >
+                Spanish
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handleLanguageChange(
+                    "Hindi"
+                  )
+                }
+              >
+                Hindi
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handleLanguageChange(
+                    "Portuguese"
+                  )
+                }
+              >
+                Portuguese
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handleLanguageChange(
+                    "Chinese"
+                  )
+                }
+              >
+                Chinese
+              </Button>
+
+              <Button
+                onClick={() =>
+                  handleLanguageChange(
+                    "French"
+                  )
+                }
+              >
+                French
+              </Button>
+
+            </div>
+
           </CardContent>
         </Card>
         <div className="grid grid-cols-1 gap-6">
