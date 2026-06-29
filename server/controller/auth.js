@@ -542,7 +542,7 @@ export const updateSubscription = async (req, res) => {
       )
     ).getHours();
 
-    if (false) {
+    if (indiaHour !== 10) {
       return res.status(403).json({
         message:
           "Payments are allowed only between 10 AM and 11 AM IST."
@@ -639,7 +639,7 @@ export const createOrder = async (req, res) => {
     const indiaHour = indiaDate.getHours();
 
 
-    if (false) {
+    if (indiaHour !== 10) {
       return res.status(403).json({
         message: "Payments are allowed only between 10:00 AM and 11:00 AM IST.",
       });
