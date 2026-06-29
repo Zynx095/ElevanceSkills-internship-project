@@ -27,7 +27,8 @@ import axiosInstance from "@/lib/axiosinstance";
 import Mainlayout from "@/layout/Mainlayout";
 import { useAuth } from "@/lib/AuthContext";
 import { useLanguage } from "@/lib/LanguageContext";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import type { Variants } from "framer-motion";
 
 const questionData = {
   id: 3,
@@ -61,12 +62,18 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+const itemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+  },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.1, 0.25, 1] as const,
+    },
   },
 };
 

@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/LanguageContext";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import type { Variants } from "framer-motion";
 import { 
   Mail, 
   Phone, 
@@ -26,6 +27,7 @@ import { Button } from "@/components/ui/button";
 const ForgotPassword = () => {
   const { translate } = useLanguage();
   const router = useRouter();
+  
   
   // Original states preserved
   const [email, setEmail] = useState("");
@@ -57,6 +59,7 @@ const ForgotPassword = () => {
   const strengthColor = strengthScore <= 1 ? "bg-red-500" : strengthScore <= 3 ? "bg-yellow-500" : "bg-green-500";
 
   // --- Enhanced API Handlers ---
+  
   const handleForgotPassword = async () => {
     if (!email && !phoneNumber) return;
     setIsLoadingEmail(true);
@@ -226,25 +229,25 @@ const ForgotPassword = () => {
                         <AlertTriangle className="w-6 h-6 text-amber-500" />
                       </div>
                       <div>
-                        <h3 className="text-amber-500 font-bold text-lg leading-tight">Verification Code Already Sent</h3>
+                        <h3 className="text-amber-500 font-bold text-lg leading-tight">{translate("Verification Code Already Sent")}</h3>
                       </div>
                     </div>
                     <p className="text-amber-200/70 text-sm leading-relaxed mb-5">
-                      A password reset code has already been sent to your registered email. Please check your inbox or wait until the current code expires before requesting another one.
+                      {translate("A password reset code has already been sent to your registered email. Please check your inbox or wait until the current code expires before requesting another one.")}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button 
                         onClick={() => document.getElementById('otp-input')?.focus()} 
                         className="bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-xl flex-1 shadow-lg shadow-amber-500/20"
                       >
-                        Continue Verification <ArrowRight className="w-4 h-4 ml-2" />
+                        {translate("Continue Verification")} <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                       <Button 
                         onClick={() => { setStep(1); setHasActiveOtp(false); setEmail(""); setPhoneNumber(""); }} 
                         variant="outline" 
                         className="border-amber-500/30 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400 bg-transparent rounded-xl flex-1"
                       >
-                        Request Again Later
+                        {translate("Request Again Later")}
                       </Button>
                     </div>
                   </motion.div>
@@ -253,7 +256,7 @@ const ForgotPassword = () => {
                     <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-2 border border-purple-500/20">
                       <ShieldCheck className="w-8 h-8 text-purple-400" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">Verify your identity</h1>
+                    <h1 className="text-2xl font-bold text-white tracking-tight">{translate("Verify your identity")}</h1>
                     <p className="text-sm text-gray-400 max-w-[280px] mx-auto leading-relaxed">
                       {translate("Enter the six digit code sent to your email.")}
                     </p>
@@ -296,8 +299,8 @@ const ForgotPassword = () => {
                 className="space-y-6"
               >
                 <div className="text-center space-y-2 mb-8">
-                  <h1 className="text-2xl font-bold text-white tracking-tight">Create New Password</h1>
-                  <p className="text-sm text-gray-400">Choose a strong password to secure your account.</p>
+                  <h1 className="text-2xl font-bold text-white tracking-tight">{translate("Create New Password")}</h1>
+                  <p className="text-sm text-gray-400">{translate("Choose a strong password to secure your account.")}</p>
                 </div>
 
                 <div className="space-y-4">
@@ -346,10 +349,10 @@ const ForgotPassword = () => {
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-xs text-gray-400 pt-2">
-                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.length ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> 8+ Characters</div>
-                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.uppercase ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> Uppercase</div>
-                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.number ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> Number</div>
-                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.special ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> Special Char</div>
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.length ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> {translate("8+ Characters")}</div>
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.uppercase ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> {translate("Uppercase")}</div>
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.number ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> {translate("Number")}</div>
+                      <div className={`flex items-center gap-1.5 transition-colors ${pwdReqs.special ? 'text-green-400' : ''}`}><Check className="w-3.5 h-3.5" /> {translate("Special Char")}</div>
                     </div>
                   </motion.div>
                 )}
@@ -380,7 +383,7 @@ const ForgotPassword = () => {
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
               <span className="relative">
-                Back to Login
+                {translate("Back to Login")}
                 <span className="absolute left-0 bottom-0 w-0 h-[1px] bg-purple-400 group-hover:w-full transition-all duration-300" />
               </span>
             </Link>
