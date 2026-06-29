@@ -278,10 +278,10 @@ const Feed = () => {
             </div>
             <div>
               <h4 className="text-red-400 font-semibold text-sm flex items-center gap-2">
-                Posting Locked
+                {translate("Posting Locked")}
               </h4>
               <p className="text-red-300/80 text-xs mt-1">
-                You need at least one friend before you can post publicly.
+                {translate("You need at least one friend before you can post publicly.")}
               </p>
             </div>
           </div>
@@ -295,10 +295,10 @@ const Feed = () => {
             </div>
             <div>
               <h4 className="text-orange-400 font-semibold text-sm flex items-center gap-2">
-                Daily Limit Reached
+                {translate("Daily Limit Reached")}
               </h4>
               <p className="text-orange-300/80 text-xs mt-1">
-                You've reached today's posting limit. Add more friends to unlock additional daily posts.
+                {translate("You've reached today's posting limit. Add more friends to unlock additional daily posts.")}
               </p>
             </div>
           </div>

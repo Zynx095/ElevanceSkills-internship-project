@@ -2,10 +2,20 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000",
+
+  baseURL:
+
+    process.env.NEXT_PUBLIC_API_URL ||
+
+    "http://localhost:5000",
+
   headers: {
-    "Content-Type": "application/json",
+
+    "Content-Type":
+      "application/json",
+
   },
+
 });
 
 axiosInstance.interceptors.request.use((req) => {
