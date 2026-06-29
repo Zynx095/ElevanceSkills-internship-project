@@ -105,6 +105,7 @@ router.post(
   auth,
   verifyLanguageOTP
 );
+
 router.post("/verify-mobile-language/:id", auth, verifyMobileLanguageOTP);
 router.post(
   "/transfer-points",
