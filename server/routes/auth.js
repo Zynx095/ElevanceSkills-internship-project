@@ -105,6 +105,24 @@ router.post(
   auth,
   verifyLanguageOTP
 );
+router.delete("/reset-project", async (req, res) => {
+  try {
+    await User.deleteMany({});
+    await Question.deleteMany({});
+    await Answer.deleteMany({});
+    await Post.deleteMany({});
+
+    res.status(200).json({
+      success: true,
+      message: "Database reset successfully"
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      error: err.message
+    });
+  }
+});
 router.post("/verify-mobile-language/:id", auth, verifyMobileLanguageOTP);
 router.post(
   "/transfer-points",
