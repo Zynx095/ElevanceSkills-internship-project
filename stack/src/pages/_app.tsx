@@ -1,6 +1,7 @@
 import type { AppProps } from "next/app";
 import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "@/lib/AuthContext";
+import "@/styles/globals.css";
 import Head from "next/head";
 import {
   LanguageProvider
