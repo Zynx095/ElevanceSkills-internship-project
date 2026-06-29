@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Code-Quest</title>
+        <title>Yukith-Hub</title>
         <script
           src="https://checkout.razorpay.com/v1/checkout.js"
         />
