@@ -173,8 +173,13 @@ export const Login = async (req, res) => {
     const device =
       parser.getDevice().type || "Desktop";
 
-    const currentHour =
-      new Date().getHours();
+    const currentHour = Number(
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Kolkata",
+        hour: "numeric",
+        hour12: false,
+      }).format(new Date())
+    );
 
     if (
       device === "mobile" &&
