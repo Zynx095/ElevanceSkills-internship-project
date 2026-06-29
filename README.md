@@ -363,9 +363,9 @@ Presidency University, Bengaluru
 
 Portfolio: https://yukithjoseph.me
 
-GitHub: https://github.com/<your-username>
+GitHub: https://github.com/Zynx095
 
-LinkedIn: https://linkedin.com/in/<your-profile>
+LinkedIn: https://linkedin.com/in/yukith-joseph
 
 ---
 
