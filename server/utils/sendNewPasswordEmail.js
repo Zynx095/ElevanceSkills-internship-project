@@ -1,63 +1,30 @@
-
+import { sendEmail } from "./emailService.js";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
 
 dotenv.config();
+export const sendNewPasswordEmail = async (
+  email,
+  password
+) => {
 
-const transporter =
-  nodemailer.createTransport({
+  await sendEmail({
 
-    service: "gmail",
+    to: email,
 
-    auth: {
+    subject: "Your New Password",
 
-      user:
-        process.env.EMAIL_USER,
+    html: `
+      <div style="font-family:Arial,sans-serif;padding:20px">
 
-      pass:
-        process.env.EMAIL_PASS
+        <h2>Password Reset Successful</h2>
 
-    }
+        <p>Your new password is:</p>
+
+        <h1>${password}</h1>
+
+      </div>
+    `
 
   });
 
-export const sendNewPasswordEmail =
-  async (
-    email,
-    password
-  ) => {
-
-    await transporter.sendMail({
-
-      from:
-        process.env.EMAIL_USER,
-
-      to:
-        email,
-
-      subject:
-        "Your New Password",
-
-      html: `
-
-        <h2>
-          Password Reset Successful
-        </h2>
-
-        <p>
-          Your new password is:
-        </p>
-
-        <h1>
-          ${password}
-        </h1>
-
-        <p>
-          Please login and change it.
-        </p>
-
-      `
-
-    });
-
-  };
+};

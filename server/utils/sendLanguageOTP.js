@@ -1,55 +1,30 @@
+import { sendEmail } from "./emailService.js";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
 
 dotenv.config();
+export const sendLanguageOTP = async (
+  email,
+  otp
+) => {
 
-console.log(process.env.EMAIL_USER);
-console.log(process.env.EMAIL_PASS);
+  await sendEmail({
 
-const transporter =
-  nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user:
-        process.env.EMAIL_USER,
-      pass:
-        process.env.EMAIL_PASS
-    }
+    to: email,
+
+    subject: "Language Verification",
+
+    html: `
+      <div style="font-family:Arial,sans-serif;padding:20px">
+
+        <h2>Language Change Verification</h2>
+
+        <p>Your OTP is:</p>
+
+        <h1 style="letter-spacing:4px">${otp}</h1>
+
+      </div>
+    `
+
   });
 
-export const sendLanguageOTP =
-  async (
-    email,
-    otp
-  ) => {
-
-    await transporter.sendMail({
-      from:
-        process.env.EMAIL_USER,
-
-      to:
-        email,
-
-      subject:
-        "Language Change OTP",
-
-      html: `
-        <h2>
-          Language Verification
-        </h2>
-
-        <p>
-          Your OTP is:
-        </p>
-
-        <h1>
-          ${otp}
-        </h1>
-
-        <p>
-          Valid for 5 minutes.
-        </p>
-      `
-    });
-
-  };
+};

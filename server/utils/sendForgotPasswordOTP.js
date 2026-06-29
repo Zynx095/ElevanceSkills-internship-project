@@ -1,40 +1,32 @@
+import { sendEmail } from "./emailService.js";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
 
 dotenv.config();
+export const sendForgotPasswordOTP = async (
+  email,
+  otp
+) => {
 
-const transporter =
-  nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+  await sendEmail({
 
-export const sendForgotPasswordOTP =
-  async (email, otp) => {
+    to: email,
 
-    await transporter.sendMail({
+    subject: "Forgot Password OTP",
 
-      from: process.env.EMAIL_USER,
+    html: `
+      <div style="font-family:Arial,sans-serif;padding:20px">
 
-      to: email,
-
-      subject:
-        "Forgot Password OTP",
-
-      html: `
-        <h2>Password Reset OTP</h2>
+        <h2>Reset Password</h2>
 
         <p>Your OTP is:</p>
 
-        <h1>${otp}</h1>
+        <h1 style="letter-spacing:4px">${otp}</h1>
 
-        <p>
-          Valid for 5 minutes.
-        </p>
-      `
-    });
+        <p>This OTP expires in 5 minutes.</p>
 
-  };
+      </div>
+    `
+
+  });
+
+};

@@ -1,59 +1,32 @@
+import { sendEmail } from "./emailService.js";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
 
 dotenv.config();
+export const sendLoginOTP = async (
+  email,
+  otp
+) => {
 
-const transporter =
-  nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user:
-        process.env.EMAIL_USER,
-      pass:
-        process.env.EMAIL_PASS
-    }
+  await sendEmail({
+
+    to: email,
+
+    subject: "Login Verification OTP",
+
+    html: `
+      <div style="font-family:Arial,sans-serif;padding:20px">
+
+        <h2>Yukith Hub</h2>
+
+        <p>Your Login OTP is:</p>
+
+        <h1 style="letter-spacing:4px">${otp}</h1>
+
+        <p>This OTP is valid for 5 minutes.</p>
+
+      </div>
+    `
+
   });
 
-export const sendLoginOTP =
-  async (
-    email,
-    otp
-  ) => {
-
-    await transporter.sendMail({
-
-      from:
-        process.env.EMAIL_USER,
-
-      to:
-        email,
-
-      subject:
-        "Login Verification OTP",
-
-      html: `
-        <h2>
-          Login Verification
-        </h2>
-
-        <p>
-          Your login OTP is:
-        </p>
-
-        <h1>
-          ${otp}
-        </h1>
-
-        <p>
-          This OTP is valid for 5 minutes.
-        </p>
-
-        <p>
-          If you did not attempt to login,
-          please ignore this email.
-        </p>
-      `
-
-    });
-
-  };
+};
