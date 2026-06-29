@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import resend from "./resend.js";
 
 dotenv.config();
 console.log(
@@ -9,17 +10,15 @@ console.log(
 console.log(
     process.env.EMAIL_PASS
 );
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
+await resend.emails.send({
+  from: "Yukith Hub <onboarding@resend.dev>",
+  to: email,
+  subject: "Login Verification OTP",
+  html: `
+    <h2>Login Verification</h2>
+    <h1>${otp}</h1>
+    <p>This OTP is valid for 5 minutes.</p>
+  `,
 });
 
 export const sendInvoiceEmail =

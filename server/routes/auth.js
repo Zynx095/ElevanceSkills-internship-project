@@ -1,4 +1,5 @@
 import express from "express";
+import { sendEmail } from "../utils/emailService.js";
 import {
   getallusers,
   Login,
@@ -35,6 +36,27 @@ router.post(
   auth,
   sendFriendRequest
 );
+router.get("/test-email", async (req, res) => {
+  try {
+    await sendEmail({
+      to: "yukithj@gmail.com",
+      subject: "Resend Test",
+      html: "<h1>Resend is working!</h1>",
+    });
+
+    res.json({
+      success: true,
+      message: "Email sent",
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
 router.post(
     "/verify-mobile-otp",
     auth,

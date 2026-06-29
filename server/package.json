@@ -23,6 +23,7 @@
     "nodemailer": "^8.0.11",
     "nodemon": "^3.1.10",
     "razorpay": "^2.9.6",
+    "resend": "^6.16.0",
     "ua-parser-js": "^2.0.10"
   }
 }
