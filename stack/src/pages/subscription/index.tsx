@@ -411,18 +411,18 @@ const SubscriptionPage = () => {
                     {/* FREE PLAN */}
                     <Card className={`relative bg-[#0A0A0A]/60 backdrop-blur-xl border border-white/5 rounded-3xl flex flex-col transition-all duration-300 hover:border-white/20 ${currentPlan === 'FREE' ? 'ring-2 ring-purple-500/50' : ''}`}>
                         <CardHeader>
-                            <CardTitle className="text-xl font-bold text-gray-300 uppercase tracking-widest">Free Plan</CardTitle>
+                            <CardTitle className="text-xl font-bold text-gray-300 uppercase tracking-widest">{translate("Free Plan")}</CardTitle>
                             <div className="mt-4 flex items-baseline text-4xl font-extrabold text-white">
                                 ₹0 <span className="ml-1 text-xl font-medium text-gray-500">/month</span>
                             </div>
-                            <p className="text-purple-400 mt-2 font-medium">1 Question Per Day</p>
+                            <p className="text-purple-400 mt-2 font-medium">{translate("1 Question Per Day")}</p>
                         </CardHeader>
                         <CardContent className="flex-1">
                             <ul className="space-y-4 text-sm text-gray-300">
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> Community Access</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> Public Feed Access</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> Language Translation</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> Basic Profile</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> {translate("Community Access")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> {translate("Public Feed Access")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> {translate("Language Translation")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-purple-500" /> {translate("Basic Profile")}</li>
                             </ul>
                         </CardContent>
                         <CardFooter>
@@ -435,18 +435,18 @@ const SubscriptionPage = () => {
                     {/* BRONZE PLAN */}
                     <Card className={`relative bg-gradient-to-b from-[#1a110a]/80 to-[#0A0A0A]/90 backdrop-blur-xl border border-amber-900/30 rounded-3xl flex flex-col transition-all duration-300 hover:border-amber-700/50 hover:shadow-[0_0_30px_rgba(217,119,6,0.1)] ${currentPlan === 'BRONZE' ? 'ring-2 ring-amber-600/50' : ''}`}>
                         <CardHeader>
-                            <CardTitle className="text-xl font-bold text-amber-600 uppercase tracking-widest flex items-center gap-2">Bronze Plan</CardTitle>
+                            <CardTitle className="text-xl font-bold text-amber-600 uppercase tracking-widest flex items-center gap-2">{translate("Bronze Plan")}</CardTitle>
                             <div className="mt-4 flex items-baseline text-4xl font-extrabold text-white">
                                 ₹100 <span className="ml-1 text-xl font-medium text-gray-500">/month</span>
                             </div>
-                            <p className="text-amber-500 mt-2 font-medium">5 Questions Per Day</p>
+                            <p className="text-amber-500 mt-2 font-medium">{translate("5 Questions Per Day")}</p>
                         </CardHeader>
                         <CardContent className="flex-1">
                             <ul className="space-y-4 text-sm text-gray-300">
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> 5 Questions Daily</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> Invoice Email</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> Bronze Badge</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> Priority Posting</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> {translate("5 Questions Daily")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> {translate("Invoice Email")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> {translate("Bronze Badge")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-amber-500" /> {translate("Priority Posting")}</li>
                             </ul>
                         </CardContent>
                         <CardFooter>
@@ -470,18 +470,18 @@ const SubscriptionPage = () => {
                     {/* SILVER PLAN */}
                     <Card className={`relative bg-gradient-to-b from-[#1a1c23]/80 to-[#0A0A0A]/90 backdrop-blur-xl border border-gray-600/30 rounded-3xl flex flex-col transition-all duration-300 hover:border-gray-400/50 hover:shadow-[0_0_30px_rgba(156,163,175,0.15)] ${currentPlan === 'SILVER' ? 'ring-2 ring-gray-400/50' : ''}`}>
                         <CardHeader>
-                            <CardTitle className="text-xl font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">Silver Plan</CardTitle>
+                            <CardTitle className="text-xl font-bold text-gray-300 uppercase tracking-widest flex items-center gap-2">{translate("Silver Plan")}</CardTitle>
                             <div className="mt-4 flex items-baseline text-4xl font-extrabold text-white">
                                 ₹300 <span className="ml-1 text-xl font-medium text-gray-500">/month</span>
                             </div>
-                            <p className="text-gray-300 mt-2 font-medium">10 Questions Per Day</p>
+                            <p className="text-gray-300 mt-2 font-medium">{translate("10 Questions Per Day")}</p>
                         </CardHeader>
                         <CardContent className="flex-1">
                             <ul className="space-y-4 text-sm text-gray-300">
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> 10 Questions Daily</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> Silver Badge</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> Faster Access</li>
-                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> Everything in Bronze</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> {translate("10 Questions Daily")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> {translate("Silver Badge")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> {translate("Faster Access")}</li>
+                                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-gray-400" /> {translate("Everything in Bronze")}</li>
                             </ul>
                         </CardContent>
                         <CardFooter>
@@ -506,21 +506,21 @@ const SubscriptionPage = () => {
                     <Card className={`relative bg-gradient-to-b from-[#1f1a00] to-[#0A0A0A] backdrop-blur-xl border border-yellow-500/50 rounded-[2rem] flex flex-col xl:-mt-8 xl:mb-8 shadow-[0_0_40px_rgba(234,179,8,0.15)] transition-all duration-500 hover:shadow-[0_0_50px_rgba(234,179,8,0.25)] hover:-translate-y-2 z-10 ${currentPlan === 'GOLD' ? 'ring-2 ring-yellow-500 ring-offset-2 ring-offset-black' : ''}`}>
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-yellow-600 to-yellow-400 text-black text-xs font-bold uppercase tracking-widest py-1.5 px-6 rounded-full shadow-lg whitespace-nowrap">Recommended</div>
                         <CardHeader className="pt-10">
-                            <CardTitle className="text-2xl font-black text-yellow-500 uppercase tracking-widest flex items-center gap-2 drop-shadow-md"><Crown className="w-6 h-6" /> Gold Plan</CardTitle>
+                            <CardTitle className="text-2xl font-black text-yellow-500 uppercase tracking-widest flex items-center gap-2 drop-shadow-md"><Crown className="w-6 h-6" /> {translate("Gold Plan")}</CardTitle>
                             <div className="mt-4 flex items-baseline text-5xl font-black text-white">
                                 ₹1000 <span className="ml-1 text-xl font-medium text-yellow-500/70">/month</span>
                             </div>
                             <div className="mt-3 inline-flex items-center gap-2 bg-yellow-500/10 text-yellow-400 px-3 py-1 rounded-full text-sm font-bold">
-                                <InfinityIcon className="w-4 h-4" /> Unlimited Questions
+                                <InfinityIcon className="w-4 h-4" /> {translate("Unlimited Questions")}
                             </div>
                         </CardHeader>
                         <CardContent className="flex-1 mt-4">
                             <ul className="space-y-5 text-sm text-gray-200">
-                                <li className="flex items-center gap-3 font-medium"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> Unlimited Questions</li>
-                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> Gold Badge</li>
-                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> Premium Access</li>
-                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> Highest Priority</li>
-                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> Everything Included</li>
+                                <li className="flex items-center gap-3 font-medium"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> {translate("Unlimited Questions")}</li>
+                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> {translate("Gold Badge")}</li>
+                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> {translate("Premium Access")}</li>
+                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> {translate("Highest Priority")}</li>
+                                <li className="flex items-center gap-3"><div className="p-1 rounded-full bg-yellow-500/20"><Check className="w-4 h-4 text-yellow-500" /></div> {translate("Everything Included")}</li>
                             </ul>
                         </CardContent>
                         <CardFooter className="pb-8">
