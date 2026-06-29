@@ -1,69 +1,32 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-import resend from "./resend.js";
+import { sendEmail } from "./emailService.js";
 
-dotenv.config();
-console.log(
-    process.env.EMAIL_USER
-);
+export const sendInvoiceEmail = async (
+  to,
+  invoice
+) => {
 
-console.log(
-    process.env.EMAIL_PASS
-);
-await resend.emails.send({
-  from: "Yukith Hub <onboarding@resend.dev>",
-  to: email,
-  subject: "Login Verification OTP",
-  html: `
-    <h2>Login Verification</h2>
-    <h1>${otp}</h1>
-    <p>This OTP is valid for 5 minutes.</p>
-  `,
-});
+  await sendEmail({
 
-export const sendInvoiceEmail =
-    async (
-        to,
-        invoice
-    ) => {
+    to,
 
-        const mailOptions = {
-            from:
-                process.env.EMAIL_USER,
+    subject: "Subscription Invoice",
 
-            to,
+    html: `
+      <h2>Subscription Activated</h2>
 
-            subject:
-                "Subscription Invoice",
+      <p><strong>Invoice Number:</strong> ${invoice.invoiceNumber}</p>
 
-            html: `
-        <h2>Subscription Activated</h2>
+      <p><strong>Plan:</strong> ${invoice.plan}</p>
 
-        <p>
-          Invoice Number:
-          ${invoice.invoiceNumber}
-        </p>
+      <p><strong>Amount:</strong> ₹${invoice.amount}</p>
 
-        <p>
-          Plan:
-          ${invoice.plan}
-        </p>
+      <p><strong>Purchase Date:</strong> ${invoice.purchaseDate}</p>
 
-        <p>
-          Amount:
-          ₹${invoice.amount}
-        </p>
+      <br/>
 
-        <p>
-          Purchase Date:
-          ${invoice.purchaseDate}
-        </p>
-      `
-        };
+      <p>Thank you for subscribing to Yukith Hub.</p>
+    `
 
+  });
 
-        await transporter.sendMail(
-            mailOptions
-        );
-
-    };
+};
