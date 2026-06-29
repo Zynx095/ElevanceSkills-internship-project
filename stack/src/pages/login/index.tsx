@@ -2,26 +2,30 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useAuth } from "@/lib/AuthContext";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useLanguage } from "@/lib/LanguageContext";
-import { Sparkles, Mail, Lock, User, Phone } from "lucide-react";
+import { Mail, Lock, Key, ShieldCheck } from "lucide-react";
+import axiosInstance from "@/lib/axiosinstance";
 
-export default function SignUpPage() {
+export default function LoginPage() {
   const router = useRouter();
-  const { Signup, loading } = useAuth();
+  const { Login, loading, setUser } = useAuth();
   const { translate } = useLanguage();
   
-  const [form, setform] = useState({ 
-    name: "", 
-    email: "", 
-    password: "", 
-    phoneNumber: "" 
-  });
+  const [form, setform] = useState({ email: "", password: "" });
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpEmail, setOtpEmail] = useState("");
 
   const handleChange = (e: any) => {
     setform({ ...form, [e.target.id]: e.target.value });
@@ -29,28 +33,44 @@ export default function SignUpPage() {
 
   const handlesubmit = async (e: any) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password || !form.phoneNumber) {
+    if (!form.email || !form.password) {
       toast.error(translate("ALL Fields are required"));
       return;
     }
-
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(form.phoneNumber)) {
-      toast.error(translate("Valid phone number is required."));
-      return;
-    }
-
     try {
-      await Signup(form);
+      const result = await Login(form);
+      if (result?.otpRequired) {
+        setShowOTP(true);
+        setOtpEmail(result.email);
+        return;
+      }
       router.push("/");
     } catch (error) {
       console.log(error);
     }
   };
 
+  const verifyOTP = async () => {
+    try {
+      const res = await axiosInstance.post("/user/verify-login-otp", {
+        email: otpEmail,
+        otp,
+      });
+      const { data, token } = res.data;
+      localStorage.setItem("user", JSON.stringify({ ...data, token }));
+      setUser({ ...data, token });
+      toast.success(translate("Login Successful"));
+      router.push("/");
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || translate("OTP verification failed")
+      );
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-[#050505] flex items-center justify-center p-4 overflow-hidden">
-      {/* Ambient Glows */}
+      {/* Ambient Background Glows */}
       <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vh] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vh] bg-indigo-900/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -67,32 +87,17 @@ export default function SignUpPage() {
         </div>
 
         <form onSubmit={handlesubmit}>
-          <Card className="bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/5 shadow-2xl rounded-3xl overflow-hidden p-6 sm:p-8">
+          <Card className="bg-[#0A0A0A]/80 backdrop-blur-xl border border-white/5 shadow-2xl rounded-3xl p-6 sm:p-8">
             <CardHeader className="space-y-2 text-center pb-6">
               <CardTitle className="text-2xl font-bold text-white tracking-tight">
-                {translate("Create your account")}
+                {translate("Log in to your account")}
               </CardTitle>
               <CardDescription className="text-gray-400">
-                {translate("Join the Stack Overflow community")}
+                {translate("Enter your email and password")}
               </CardDescription>
             </CardHeader>
             
             <CardContent className="space-y-5 p-0">
-              {/* Display Name */}
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm text-gray-400">{translate("Display name")}</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 w-4 h-4 text-gray-600" />
-                  <Input
-                    id="name"
-                    className="bg-[#111] border-white/10 text-white rounded-xl pl-10 focus-visible:ring-purple-500"
-                    placeholder={translate("Enter your display name")}
-                    value={form.name}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm text-gray-400">{translate("Email")}</Label>
@@ -104,22 +109,6 @@ export default function SignUpPage() {
                     className="bg-[#111] border-white/10 text-white rounded-xl pl-10 focus-visible:ring-purple-500"
                     placeholder={translate("m@example.com")}
                     value={form.email}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber" className="text-sm text-gray-400">{translate("Phone Number")}</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3 w-4 h-4 text-gray-600" />
-                  <Input
-                    id="phoneNumber"
-                    type="tel"
-                    className="bg-[#111] border-white/10 text-white rounded-xl pl-10 focus-visible:ring-purple-500"
-                    placeholder="9901111100"
-                    value={form.phoneNumber}
                     onChange={handleChange}
                   />
                 </div>
@@ -138,33 +127,53 @@ export default function SignUpPage() {
                     onChange={handleChange}
                   />
                 </div>
-                <p className="text-[11px] text-gray-500 leading-tight">
-                  {translate("Passwords must contain at least eight characters, including at least 1 letter and 1 number.")}
-                </p>
               </div>
 
-              <div className="flex items-start space-x-2 pt-2">
-                <Checkbox id="terms" className="border-gray-600 mt-1" />
-                <Label htmlFor="terms" className="text-xs text-gray-400 leading-relaxed">
-                  {translate("I agree to the")}{" "}
-                  <Link href="#" className="text-purple-400 hover:underline">{translate("Terms of Service")}</Link>
-                  {" "}{translate("and")}{" "}
-                  <Link href="#" className="text-purple-400 hover:underline">{translate("Privacy Policy")}</Link>
-                </Label>
-              </div>
+              {/* OTP Section */}
+              {showOTP && (
+                <div className="mt-6 p-5 bg-white/5 rounded-2xl border border-purple-500/30 space-y-4">
+                  <Label className="text-xs text-purple-300 uppercase tracking-wider flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4" /> {translate("Enter OTP")}
+                  </Label>
+                  <div className="flex flex-col gap-3">
+                    <Input
+                      type="text"
+                      placeholder="••• •••"
+                      maxLength={6}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      className="w-full bg-black border-white/20 text-white rounded-xl font-mono text-center tracking-[0.5em] text-lg h-12 focus-visible:ring-purple-500/50"
+                    />
+                    <Button 
+                      type="button"
+                      onClick={verifyOTP} 
+                      className="w-full bg-purple-600 hover:bg-purple-700 rounded-xl text-white h-12 font-semibold"
+                    >
+                      {translate("Verify OTP")}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl py-6 font-semibold transition-all shadow-lg shadow-purple-900/20"
               >
-                {loading ? translate("Signing up..") : translate("Sign up")}
+                {loading ? translate("loading") : translate("Log in")}
               </Button>
 
-              <div className="text-center text-sm text-gray-500">
-                {translate("Already have an account?")}{" "}
-                <Link href="/login" className="text-purple-400 hover:underline font-medium">
-                  {translate("Log in")}
-                </Link>
+              <div className="text-center text-sm space-y-3 pt-2">
+                <div>
+                  <Link href="/forgot-password" className="text-purple-400 hover:underline font-medium">
+                    {translate("Forgot your password?")}
+                  </Link>
+                </div>
+                <div className="text-gray-500">
+                  {translate("Don't have an account?")}{" "}
+                  <Link href="/signup" className="text-purple-400 hover:underline font-medium">
+                    {translate("Sign up")}
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>

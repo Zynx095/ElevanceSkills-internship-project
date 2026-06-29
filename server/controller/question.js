@@ -15,26 +15,6 @@ export const Askquestion = async (req, res) => {
         message: "User not found"
       });
     }
-
-    const friendCount =
-      currentUser.friends?.length || 0;
-
-
-    if (friendCount === 0) {
-      return res.status(403).json({
-        message:
-          "You need at least 1 friend to post questions."
-      });
-    }
-
-    let friendLimit;
-
-    if (friendCount >= 10) {
-      friendLimit = Infinity;
-    } else {
-      friendLimit = friendCount;
-    }
-
     let subscriptionLimit = 1;
 
     switch (currentUser.subscriptionPlan) {
@@ -56,10 +36,7 @@ export const Askquestion = async (req, res) => {
     }
 
     const dailyLimit =
-      Math.max(
-        friendLimit,
-        subscriptionLimit
-      );
+      subscriptionLimit;
 
     const today = new Date();
 
@@ -78,7 +55,7 @@ export const Askquestion = async (req, res) => {
       questionsToday >= dailyLimit
     ) {
       return res.status(403).json({
-        message: `Daily posting limit reached (${dailyLimit} posts/day)`
+        message: `Daily posting limit reached (${isUnlimited ? "Unlimited" : dailyLimit} posts/day)`
       });
     }
 
@@ -101,6 +78,80 @@ export const Askquestion = async (req, res) => {
     );
   }
 };
+export const getQuestionStatus =
+  async (req, res) => {
+
+    try {
+
+      const user =
+        await User.findById(
+          req.params.userId
+        );
+
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found"
+        });
+      }
+
+      let dailyLimit = 1;
+
+      switch (
+      user.subscriptionPlan
+      ) {
+
+        case "BRONZE":
+          dailyLimit = 5;
+          break;
+
+        case "SILVER":
+          dailyLimit = 10;
+          break;
+
+        case "GOLD":
+          dailyLimit = Infinity;
+          break;
+      }
+
+      const today =
+        new Date();
+
+      today.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+      const questionsToday =
+        await question.countDocuments({
+          userid: user._id,
+          askedon: {
+            $gte: today
+          }
+        });
+
+      const unlimited =
+        user.subscriptionPlan === "GOLD";
+
+      res.status(200).json({
+        plan: user.subscriptionPlan,
+        used: questionsToday,
+        limit: unlimited ? -1 : dailyLimit,
+        remaining: unlimited ? -1 : dailyLimit - questionsToday,
+        unlimited
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        message:
+          "something went wrong"
+      });
+
+    }
+
+  };
 
 export const getallquestion = async (req, res) => {
   try {

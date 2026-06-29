@@ -15,73 +15,116 @@ const userschema = mongoose.Schema({
   language: { type: String, default: "English" },
   mobile: { type: String },
   loginOTP: {
-  type: String,
-  default: ""
-},
+    type: String,
+    default: ""
+  },
 
-otpExpiry: {
-  type: Date
-},
+  otpExpiry: {
+    type: Date
+  },
+  forgotPasswordOTP: {
+    type: String,
+    default: ""
+  },
 
-languageOTP: {
-  type: String,
-  default: ""
-},
+  forgotPasswordOTPExpiry: {
+    type: Date
+  },
 
-languageOTPExpiry: {
-  type: Date
-},
+  languageOTP: {
+    type: String,
+    default: ""
+  },
+  friendRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user"
+    }
+  ],
 
-pendingLanguage: {
-  type: String
-},
+  sentRequests: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user"
+    }
+  ],
+  languageOTPExpiry: {
+    type: Date
+  },
 
-forgotPasswordLastUsed: {
-  type: Date
-},
+  pendingLanguage: {
+    type: String
+  },
 
-loginHistory: [
+  forgotPasswordLastUsed: {
+    type: Date
+  },
+  phoneNumber: {
+    type: String,
+    default: ""
+  },
+
+  mobileOTP: {
+    type: String,
+    default: ""
+  },
+
+  mobileOTPExpiry: {
+    type: Date,
+    default: null
+  },
+  mobileVerified: {
+    type: Boolean,
+    default: false,
+  },
+  loginHistory: [
   {
     browser: String,
+    browserVersion: String,
+
     os: String,
+    osVersion: String,
+
     device: String,
+
     ip: String,
+
     loginTime: {
       type: Date,
-      default: Date.now
-    }
-  }
+      default: Date.now,
+    },
+  },
 ],
 
-transferHistory: [
-  {
-    type: {
-      type: String
-    },
-    points: Number,
-    otherUserId: String,
-    otherUserName: String,
-    date: {
-      type: Date,
-      default: Date.now
+  transferHistory: [
+    {
+      type: {
+        type: String
+      },
+      points: Number,
+      otherUserId: String,
+      otherUserName: String,
+      date: {
+        type: Date,
+        default: Date.now
+      }
     }
-  }
-],
-invoiceHistory: [
-  {
-    invoiceNumber: String,
-    plan: String,
-    amount: Number,
-    purchaseDate: {
-      type: Date,
-      default: Date.now
+  ],
+  invoiceHistory: [
+    {
+      invoiceNumber: String,
+      plan: String,
+      amount: Number,
+      purchaseDate: {
+        type: Date,
+        default: Date.now
+      }
     }
+  ],
+  badges: {
+    type: [String],
+    default: []
   }
-],
-badges: {
-  type: [String],
-  default: []
-}
 });
 
 export default mongoose.model("user", userschema);

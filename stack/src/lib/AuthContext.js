@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setloading] = useState(false);
   const [error, seterror] = useState(null);
 
-  const Signup = async ({ name, email, password }) => {
+  const Signup = async ({ name, email, password, phoneNumber }) => {
     setloading(true);
     seterror(null);
     try {
@@ -25,13 +25,14 @@ export const AuthProvider = ({ children }) => {
         name,
         email,
         password,
+        phoneNumber
       });
       const { data, token } = res.data;
       localStorage.setItem("user", JSON.stringify({ ...data, token }));
       setUser(data);
       toast.success("Signup Successful");
     } catch (error) {
-      const msg = error.response?.data.message || "Signup failed";
+      const msg = error.response?.data?.message || "Signup failed";
       seterror(msg);
       toast.error(msg);
     }
@@ -111,7 +112,7 @@ export const AuthProvider = ({ children }) => {
   };
   return (
     <AuthContext.Provider
-      value={{ user,setUser, Signup, Login, Logout, loading, error }}
+      value={{ user, setUser, Signup, Login, Logout, loading, error }}
     >
       {children}
     </AuthContext.Provider>

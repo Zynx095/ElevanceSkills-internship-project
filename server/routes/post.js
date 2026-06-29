@@ -6,7 +6,8 @@ import {
   likePost,
   commentPost,
   sharePost,
-  deletePost
+  deletePost,
+  getPostStatus
 } from "../controller/post.js";
 
 import auth from "../middleware/auth.js";
@@ -19,7 +20,11 @@ router.post(
   auth,
   createPost
 );
-
+router.get(
+"/status/:userId",
+auth,
+getPostStatus
+);
 router.get(
   "/all",
   getAllPosts
