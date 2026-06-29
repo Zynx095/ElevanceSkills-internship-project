@@ -113,7 +113,7 @@ const ForgotPassword = () => {
     setTimeout(() => {
       setIsLoadingReset(false);
       toast.success(translate("Password updated successfully"));
-      router.push("/auth");
+      router.push("/login");
     }, 1200);
   };
 
