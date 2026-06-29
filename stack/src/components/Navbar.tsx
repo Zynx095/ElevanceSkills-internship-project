@@ -169,7 +169,7 @@ const Navbar = ({ handleslidein }: any) => {
         {/* Subtle Top Gradient Line */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent opacity-50" />
 
-        <div className="max-w-[1440px] mx-auto px-4 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-8 h-16 flex items-center justify-between gap-3">
 
           {/* LEFT SECTION: Logo & Mobile Menu */}
           <div className="flex items-center gap-4 min-w-max">

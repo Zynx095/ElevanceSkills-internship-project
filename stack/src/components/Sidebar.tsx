@@ -33,23 +33,26 @@ const Sidebar = ({ isopen, user }: any) => {
     <>
       {/* Mobile Backdrop Overlay */}
       {isopen && (
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
           aria-hidden="true"
         />
       )}
 
       <aside
         className={cn(
-          "fixed md:sticky top-[64px] left-0 z-40 w-64 h-[calc(100vh-64px)] overflow-y-auto bg-[#0A0A0A]/95 backdrop-blur-2xl border-r border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-in-out md:translate-x-0",
-          isopen ? "translate-x-0" : "-translate-x-full"
+          "fixed lg:sticky top-16 lg:top-[64px] left-0 z-50 w-72 lg:w-64 h-[calc(100vh-64px)] overflow-y-auto bg-[#0A0A0A]/95 backdrop-blur-2xl border-r border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-in-out",
+
+          isopen
+            ? "translate-x-0"
+            : "-translate-x-full lg:translate-x-0"
         )}
       >
         {/* Subtle Side Glow */}
         <div className="absolute top-0 right-0 w-[1px] h-full bg-gradient-to-b from-transparent via-purple-500/20 to-transparent" />
 
-        <nav className="p-4 space-y-8">
-          
+        <nav className="p-4 pb-24 space-y-8">
+
           {/* Main Navigation Group */}
           <div>
             <h4 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 font-mono">
@@ -69,13 +72,13 @@ const Sidebar = ({ isopen, user }: any) => {
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
                       />
                     )}
-                    
+
                     <Link
                       href={link.path}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                        isActive 
-                          ? "bg-purple-500/10 text-white" 
+                        isActive
+                          ? "bg-purple-500/10 text-white"
                           : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
                       )}
                     >
@@ -112,13 +115,13 @@ const Sidebar = ({ isopen, user }: any) => {
                           transition={{ type: "spring", stiffness: 400, damping: 30 }}
                         />
                       )}
-                      
+
                       <Link
                         href={link.path}
                         className={cn(
                           "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                          isActive 
-                            ? "bg-purple-500/10 text-white" 
+                          isActive
+                            ? "bg-purple-500/10 text-white"
                             : "text-gray-400 hover:bg-white/5 hover:text-gray-200"
                         )}
                       >
