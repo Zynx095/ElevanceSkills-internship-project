@@ -3,15 +3,19 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const razorpay =
-console.log("KEY:", process.env.RAZORPAY_KEY_ID);
-console.log("SECRET EXISTS:", !!process.env.RAZORPAY_SECRET);
-  new Razorpay({
-    key_id:
-      process.env.RAZORPAY_KEY_ID,
+console.log("========== RAZORPAY DEBUG ==========");
+console.log("KEY ID:", process.env.RAZORPAY_KEY_ID);
+console.log(
+  "SECRET EXISTS:",
+  process.env.RAZORPAY_KEY_SECRET ? "YES" : "NO"
+);
 
-    key_secret:
-      process.env.RAZORPAY_KEY_SECRET
-  });
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+console.log("INSTANCE CREATED:", !!razorpay);
+console.log("====================================");
 
 export default razorpay;
