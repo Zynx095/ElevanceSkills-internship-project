@@ -17,5 +17,8 @@ const razorpay = new Razorpay({
 
 console.log("INSTANCE CREATED:", !!razorpay);
 console.log("====================================");
+console.log("Prototype:", Object.getPrototypeOf(razorpay));
+console.log("Keys:", Object.keys(razorpay));
+console.log("Orders:", razorpay.orders);
 
 export default razorpay;

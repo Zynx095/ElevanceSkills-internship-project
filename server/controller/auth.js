@@ -646,6 +646,10 @@ export const createOrder = async (req, res) => {
     }
 
     const { amount } = req.body;
+    console.log("typeof razorpay:", typeof razorpay);
+    console.log("razorpay:", razorpay);
+    console.log("keys:", Object.keys(razorpay || {}));
+    console.log("orders:", razorpay?.orders);
 
     const order = await razorpay.orders.create({
       amount: amount * 100,
